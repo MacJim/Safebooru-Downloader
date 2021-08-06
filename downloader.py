@@ -6,7 +6,8 @@ import urllib.request
 # MARK: - Config
 DEFAULT_HEADERS: typing.Final = {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-    "Accept-Encoding": "gzip, deflate, br",
+    # "Accept-Encoding": "gzip, deflate, br",    # Don't add those compression options. Otherwise, I'll need to decode on my end.
+    "Accept-Encoding": "identity",    # Force no compression.
     "Accept-Language": "en-US",
     "Connection": "keep-alive",
     "DNT": "1",
@@ -49,6 +50,17 @@ def _get_header_for_url(url: str, referer: typing.Optional[str]) -> typing.Dict[
 
 
 # MARK: - Requests
-def request_url(url: str, referer=None) -> str:
+def request_html(url: str, referer=None) -> str:
     header_dict = _get_header_for_url(url, referer)
-    # TODO:
+
+    # Create request.
+    req = urllib.request.Request(url, headers=header_dict, method="GET")
+    response = urllib.request.urlopen(req)
+
+    charset = response.info().get_content_charset()
+    # print(f"Charset: {charset}")    # Python: utf-8
+    response_bytes = response.read()
+    response_str = response_bytes.decode(charset)
+    response.close()
+
+    return response_str

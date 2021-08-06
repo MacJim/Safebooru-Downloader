@@ -32,5 +32,21 @@ class HeaderTestCase (unittest.TestCase):
         self.assertEqual(downloader.HEADER_SEC_FETCH_SITE_VALUE_SAME_ORIGIN, header_dict[downloader.HEADER_SEC_FETCH_SITE_KEY])
 
 
+class RequestHTMLTestCase (unittest.TestCase):
+    def test_google(self):
+        url = "https://www.google.com"
+        request_result = downloader.request_html(url)
+
+        print("Google request result:")
+        print(request_result)
+
+    def test_safebooru(self):
+        url = "https://safebooru.org/index.php?page=post&s=list"
+        request_result = downloader.request_html(url)
+
+        print("Safebooru request result:")
+        print(request_result)
+
+
 if __name__ == "__main__":
     unittest.main()
