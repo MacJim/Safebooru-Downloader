@@ -1,4 +1,5 @@
 import typing
+import os
 import urllib.parse
 import urllib.request
 
@@ -55,12 +56,23 @@ def request_html(url: str, referer=None) -> str:
 
     # Create request.
     req = urllib.request.Request(url, headers=header_dict, method="GET")
-    response = urllib.request.urlopen(req)
-
-    charset = response.info().get_content_charset()
-    # print(f"Charset: {charset}")    # Python: utf-8
-    response_bytes = response.read()
-    response_str = response_bytes.decode(charset)
-    response.close()
+    with urllib.request.urlopen(req) as response:
+        charset = response.info().get_content_charset()
+        # print(f"Charset: {charset}")    # Python: utf-8
+        response_bytes = response.read()
+        response_str = response_bytes.decode(charset)
 
     return response_str
+
+
+def download_file(filename: str, url: str, referer=None):
+    if os.path.exists(filename):
+        raise FileExistsError(f"`{filename}` exists.")
+
+    header_dict = _get_header_for_url(url, referer)
+
+    # Create request.
+    req = urllib.request.Request(url, headers=header_dict, method="GET")
+    with urllib.request.urlopen(req) as response, open(filename, "wb") as f:
+        data = response.read()
+        f.write(data)
