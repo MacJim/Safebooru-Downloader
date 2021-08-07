@@ -55,5 +55,16 @@ class CatalogPageTestCase (unittest.TestCase):
             self.assertIsInstance(image_detail_page_url, str)
 
 
+class ImageDetailPageTestCase (unittest.TestCase):
+    def test_parse(self):
+        with open("test_cases/image_detail.html", "r") as f:
+            page_html = f.read()
+
+        original_image_url = parser.parse_image_detail_page(page_html)
+
+        self.assertIsInstance(original_image_url, str)
+        self.assertEqual(original_image_url, "https://safebooru.org//images/3439/7ec73c4962fcaf745a2585b4922c745615324bf9.jpg")
+
+
 if __name__ == '__main__':
     unittest.main()

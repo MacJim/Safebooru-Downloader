@@ -64,3 +64,31 @@ def parse_catalog_page(page_html: str) -> typing.Tuple[typing.Optional[str], typ
     image_detail_page_urls = [str(s) for s in image_detail_page_urls]    # Convert `_ElementUnicodeResult` to `str`
 
     return (next_page_url, image_detail_page_urls)
+
+
+# MARK: - Image detail page
+IMAGE_DETAIL_PAGE_ORIGINAL_IMAGE_XPATH: typing.Final = "//div[@id='content']//div[@class='sidebar']//li/a[text()[contains(.,'Original')]]/@href"
+"""
+Example: `https://safebooru.org//images/3439/7ec73c4962fcaf745a2585b4922c745615324bf9.jpg`
+
+Should be the absolute URL.
+
+Source: https://stackoverflow.com/questions/3655549/xpath-containstext-some-string-doesnt-work-when-used-with-node-with-more
+"""
+
+
+def parse_image_detail_page(page_html: str) -> str:
+    """
+    :param page_html: Web page HTML source code.
+    :return: Image URL.
+    """
+    root: lxml.html.HtmlElement = lxml.html.fromstring(page_html)
+
+    original_image_url = root.xpath(IMAGE_DETAIL_PAGE_ORIGINAL_IMAGE_XPATH)
+    if original_image_url:
+        original_image_url = original_image_url[0]
+        original_image_url = str(original_image_url)
+    else:
+        original_image_url = None
+
+    return original_image_url
