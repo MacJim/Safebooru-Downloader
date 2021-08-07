@@ -25,20 +25,6 @@ class ServerOverloadTestCase (unittest.TestCase):
 
 
 class CatalogPageTestCase (unittest.TestCase):
-    # TODO:
-    # previous_working_dir = None
-    #
-    # @classmethod
-    # def setUpClass(cls) -> None:
-    #     cls.previous_working_dir = os.getcwd()
-    #     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    #     # print(f"Switched to project dir: {os.getcwd()}")
-    #
-    # @classmethod
-    # def tearDownClass(cls) -> None:
-    #     os.chdir(cls.previous_working_dir)
-    #     # print(f"Switched back to original dir: {os.getcwd()}")
-
     def test_parse_normal(self):
         with open("test_cases/catalog_normal.html", "r") as f:
             page_html = f.read()
