@@ -26,23 +26,41 @@ def is_server_overloaded(page_html: str) -> bool:
 CATALOG_PAGE_NEXT_BUTTON_XPATH: typing.Final = "//div[@class='pagination']/a[@alt='next']/@href"
 """
 Example: `?page=post&s=list&tags=coat&pid=50960`
+->
+`ParseResult(scheme='', netloc='', path='', params='', query='page=post&s=list&tags=coat&pid=50960', fragment='')`
 
-Note: Doesn't include the scheme, netloc, and path.
+Note: May not include the scheme, netloc, and path.
 """
 
-CATALOG_PAGE_IMAGES_XPATH: typing.Final = ""
+CATALOG_PAGE_IMAGE_DETAIL_PAGES_XPATH: typing.Final = "//div[@class='content']/div[1]/span[@id]/a/@href"
+"""
+Example: `index.php?page=post&s=view&id=3578328`
+->
+`ParseResult(scheme='', netloc='', path='index.php', params='', query='page=post&s=view&id=3578328', fragment='')`
+
+Note: May not include the scheme and netloc.
+"""
 
 
-def parse_catalog_page(page_html: str):
+def parse_catalog_page(page_html: str) -> typing.Tuple[typing.Optional[str], typing.List[str]]:
+    """
+    :param page_html: Web page HTML source code.
+    :return: (next page URL, a list of image detail page URLs). URLs may be relative and don't include the scheme, netloc, and path: use `urljoin` to join with the previous URL.
+    """
     root: lxml.html.HtmlElement = lxml.html.fromstring(page_html)
 
-    # TODO:
     # Next page URL.
     next_page_url = root.xpath(CATALOG_PAGE_NEXT_BUTTON_XPATH)
-    print(next_page_url)
     if next_page_url:
         # We have a next page.
         next_page_url = next_page_url[0]
+        next_page_url = str(next_page_url)    # Convert `_ElementUnicodeResult` to `str`
     else:
         # This is the last page.
         next_page_url = None
+
+    # Image detail page URLs.
+    image_detail_page_urls = root.xpath(CATALOG_PAGE_IMAGE_DETAIL_PAGES_XPATH)
+    image_detail_page_urls = [str(s) for s in image_detail_page_urls]    # Convert `_ElementUnicodeResult` to `str`
+
+    return (next_page_url, image_detail_page_urls)

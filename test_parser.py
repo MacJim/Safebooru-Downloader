@@ -43,13 +43,30 @@ class CatalogPageTestCase (unittest.TestCase):
         with open("test_cases/catalog_normal.html", "r") as f:
             page_html = f.read()
 
-        parser.parse_catalog_page(page_html)
+        next_page_url, image_detail_page_urls = parser.parse_catalog_page(page_html)
+
+        self.assertIsNotNone(next_page_url)
+        self.assertIsInstance(next_page_url, str)
+
+        self.assertIsNotNone(image_detail_page_urls)
+        self.assertIsInstance(image_detail_page_urls, list)
+        self.assertGreater(len(image_detail_page_urls), 0)
+        for image_detail_page_url in image_detail_page_urls:
+            self.assertIsInstance(image_detail_page_url, str)
 
     def test_parse_last_page(self):
         with open("test_cases/catalog_last_page.html", "r") as f:
             page_html = f.read()
 
-        parser.parse_catalog_page(page_html)
+        next_page_url, image_detail_page_urls = parser.parse_catalog_page(page_html)
+
+        self.assertIsNone(next_page_url)
+
+        self.assertIsNotNone(image_detail_page_urls)
+        self.assertIsInstance(image_detail_page_urls, list)
+        self.assertGreater(len(image_detail_page_urls), 0)
+        for image_detail_page_url in image_detail_page_urls:
+            self.assertIsInstance(image_detail_page_url, str)
 
 
 if __name__ == '__main__':
