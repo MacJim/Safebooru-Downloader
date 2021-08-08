@@ -23,6 +23,13 @@ class ImageExistsTestCase (unittest.TestCase):
 
                 self.assertTrue(file_helper.image_exists(test_id, dir_name))
 
+    def test_new_images(self):
+        test_ids = [str(random.randint(100000, 300000)) for _ in range(10)]
+
+        with tempfile.TemporaryDirectory() as dir_name:
+            for test_id in test_ids:
+                self.assertFalse(file_helper.image_exists(test_id, dir_name))
+
 
 if __name__ == "__main__":
     unittest.main()
