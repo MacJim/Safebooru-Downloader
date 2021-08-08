@@ -16,7 +16,7 @@ class DetailPageWorkerTestCase (unittest.TestCase):
         image_detail_page_urls_queue.put((detail_page_worker.PAGE_RETRIEVAL_COMPLETE_PLACEHOLDER_URL, None))
 
         with tempfile.TemporaryDirectory() as dir_name:
-            detail_page_worker.details_page_worker(image_detail_page_urls_queue, dir_name)
+            detail_page_worker.detail_page_worker(image_detail_page_urls_queue, dir_name)
 
             self.assertTrue(file_helper.image_exists("3579893", dir_name))
             filename1 = os.path.join(dir_name, "3579893.png")

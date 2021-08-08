@@ -34,12 +34,12 @@ Example: `https://safebooru.org/index.php?page=post&s=view&id=1348630`
 """
 
 
-def details_page_worker(image_detail_page_urls_queue: Queue, images_dir: str):
+def detail_page_worker(image_detail_page_urls_queue: Queue, images_dir: str):
     while True:
         page_url, referer = image_detail_page_urls_queue.get(block=True)    # Must block here until the catalog page thread adds more URLs.
         if page_url == PAGE_RETRIEVAL_COMPLETE_PLACEHOLDER_URL:
             # No more URLs.
-            print("Finished parsing all image detail pages.")
+            print("Finished parsing all image detail pages!")
             return
 
         # Get image ID from page URL.
