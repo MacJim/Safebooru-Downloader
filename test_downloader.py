@@ -41,14 +41,18 @@ class RequestHTMLTestCase (unittest.TestCase):
         request_result = downloader.request_html(url)
 
         print("Google request result:")
-        print(request_result)
+        print(request_result[:100] + " ...")
+        self.assertIsInstance(request_result, str)
+        self.assertGreater(len(request_result), 0)
 
     def test_safebooru(self):
         url = "https://safebooru.org/index.php?page=post&s=list"
         request_result = downloader.request_html(url)
 
         print("Safebooru request result:")
-        print(request_result)
+        print(request_result[:100] + " ...")
+        self.assertIsInstance(request_result, str)
+        self.assertGreater(len(request_result), 0)
 
 
 class DownloadFileTestCase (unittest.TestCase):
