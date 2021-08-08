@@ -67,9 +67,8 @@ def detail_page_worker(image_detail_page_urls_queue: Queue, images_dir: str):
         image_filename = image_id + extension
         image_filename = os.path.join(images_dir, image_filename)
 
+        print(f"Downloading image {image_id} to `{image_filename}`.")
         downloader.download_file(image_filename, image_url)
-
-        print(f"Downloaded image {image_id} to `{image_filename}`.")
 
         # Sleep between pages.
         sleep_duration = random.uniform(IMAGE_DETAIL_PAGE_RETRIEVAL_INTERVAL_RANGE[0], IMAGE_DETAIL_PAGE_RETRIEVAL_INTERVAL_RANGE[1])
