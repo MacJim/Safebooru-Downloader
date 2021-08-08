@@ -22,13 +22,6 @@ PAGE_RETRIEVAL_INTERVAL_RANGE: typing.Final = (30.0, 60.0)
 A random float number will be chosen between this range for the (sleep) interval between catalog page requests.
 """
 
-PAGE_RETRIEVAL_COMPLETE_PLACEHOLDER_URL: typing.Final = "complete_placeholder_url"
-"""
-The catalog page thread pushes this item into the queue once all catalog pages have been retrieved.
-
-The image detail page thread exits once it encounters this item form the queue.
-"""
-
 
 def catalog_page_worker(image_detail_page_urls_queue: Queue, start_url: str):
     current_url = start_url
