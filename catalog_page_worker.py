@@ -48,9 +48,9 @@ def catalog_page_worker(image_detail_page_urls_queue: Queue, start_url: str):
 
         next_page_url, image_detail_page_urls = html_parser.parse_catalog_page(html_str)
 
-        # Add detail page URLs to queue.
+        # Add detail page URLs and current URL (used as referer) to queue.
         for image_detail_page_url in image_detail_page_urls:
-            image_detail_page_urls_queue.put(image_detail_page_url)
+            image_detail_page_urls_queue.put((image_detail_page_url, current_url))
 
         print(f"Parsed {len(image_detail_page_urls)} URLs from `{current_url}`.")
 
