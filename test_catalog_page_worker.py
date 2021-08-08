@@ -18,15 +18,16 @@ class CatalogPageWorkerTestCase (unittest.TestCase):
         self.assertLess(image_detail_page_urls_queue.qsize(), 80)    # NOTE: At the time of writing this test, this particular search has 47 results in total. As images get added over time, please re-perform the search to check if an increase in numbers is needed.
 
         while not image_detail_page_urls_queue.empty():
+            # They are both absolute URLs.
             image_detail_page_url, referer_url = image_detail_page_urls_queue.get()
 
             self.assertIsInstance(image_detail_page_url, str)
-            # Example: index.php?page=post&s=view&id=3579606
+            self.assertTrue(image_detail_page_url.startswith("https://safebooru.org/index.php"))
             self.assertIn("?", image_detail_page_url)
             self.assertIn("id=", image_detail_page_url)
 
             self.assertIsInstance(referer_url, str)
-            self.assertIn("https://safebooru.org/index.php", referer_url)
+            self.assertTrue(referer_url.startswith("https://safebooru.org/index.php"))
 
 
 if __name__ == "__main__":
