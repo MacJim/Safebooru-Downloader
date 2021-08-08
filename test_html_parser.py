@@ -1,7 +1,7 @@
 import os
 import unittest
 
-import parser
+import html_parser
 
 
 class ServerOverloadTestCase (unittest.TestCase):
@@ -9,19 +9,19 @@ class ServerOverloadTestCase (unittest.TestCase):
         with open("test_cases/catalog_normal.html", "r") as f:
             page_html = f.read()
 
-        self.assertFalse(parser.is_server_overloaded(page_html))
+        self.assertFalse(html_parser.is_server_overloaded(page_html))
 
     def test_parse_last_page(self):
         with open("test_cases/catalog_last_page.html", "r") as f:
             page_html = f.read()
 
-        self.assertFalse(parser.is_server_overloaded(page_html))
+        self.assertFalse(html_parser.is_server_overloaded(page_html))
 
     def test_parse_overload_page(self):
         with open("test_cases/catalog_overload.html", "r") as f:
             page_html = f.read()
 
-        self.assertTrue(parser.is_server_overloaded(page_html))
+        self.assertTrue(html_parser.is_server_overloaded(page_html))
 
 
 class CatalogPageTestCase (unittest.TestCase):
@@ -29,7 +29,7 @@ class CatalogPageTestCase (unittest.TestCase):
         with open("test_cases/catalog_normal.html", "r") as f:
             page_html = f.read()
 
-        next_page_url, image_detail_page_urls = parser.parse_catalog_page(page_html)
+        next_page_url, image_detail_page_urls = html_parser.parse_catalog_page(page_html)
 
         self.assertIsNotNone(next_page_url)
         self.assertIsInstance(next_page_url, str)
@@ -44,7 +44,7 @@ class CatalogPageTestCase (unittest.TestCase):
         with open("test_cases/catalog_last_page.html", "r") as f:
             page_html = f.read()
 
-        next_page_url, image_detail_page_urls = parser.parse_catalog_page(page_html)
+        next_page_url, image_detail_page_urls = html_parser.parse_catalog_page(page_html)
 
         self.assertIsNone(next_page_url)
 
@@ -60,7 +60,7 @@ class ImageDetailPageTestCase (unittest.TestCase):
         with open("test_cases/image_detail.html", "r") as f:
             page_html = f.read()
 
-        original_image_url = parser.parse_image_detail_page(page_html)
+        original_image_url = html_parser.parse_image_detail_page(page_html)
 
         self.assertIsInstance(original_image_url, str)
         self.assertEqual(original_image_url, "https://safebooru.org//images/3439/7ec73c4962fcaf745a2585b4922c745615324bf9.jpg")
