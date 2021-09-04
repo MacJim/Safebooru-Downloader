@@ -51,4 +51,4 @@ if __name__ == "__main__":
     parser = get_argument_parser()
     args = parser.parse_args()
 
-    main(args.images_dir, args.start_url)
+    main(args.images_dir, args.catalog_page_urls)
