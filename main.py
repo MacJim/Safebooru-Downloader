@@ -34,12 +34,20 @@ def main(images_dir: str, start_url: str):
     detail_page_thread.join()
 
 
-if __name__ == '__main__':
-    print(f"Working directory: {os.getcwd()}")
-
+# MARK: - Argument parser
+def get_argument_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
     parser.add_argument("--images_dir", "-d", type=str, default="images/")
     parser.add_argument("start_url", type=str)
+
+    return parser
+
+
+# MARK: -
+if __name__ == "__main__":
+    print(f"Working directory: {os.getcwd()}")
+
+    parser = get_argument_parser()
     args = parser.parse_args()
 
     main(args.images_dir, args.start_url)
