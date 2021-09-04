@@ -1,6 +1,7 @@
 import os
 import argparse
 import threading
+import typing
 from queue import Queue    # `Queue` has all the locking semantics for a multi-threaded environment.
 
 from catalog_page_worker import catalog_page_worker
@@ -8,7 +9,7 @@ from detail_page_worker import detail_page_worker, PAGE_RETRIEVAL_COMPLETE_PLACE
 
 
 # MARK: - Main
-def main(images_dir: str, start_url: str):
+def main(images_dir: str, catalog_page_urls: typing.List[str]):
     # Verify parameters
     if os.path.exists(images_dir):
         if os.path.isdir(images_dir):
@@ -22,7 +23,7 @@ def main(images_dir: str, start_url: str):
     # Create threads.
     image_detail_page_urls_queue = Queue()
 
-    catalog_page_thread = threading.Thread(target=catalog_page_worker, args=(image_detail_page_urls_queue, start_url))
+    catalog_page_thread = threading.Thread(target=catalog_page_worker, args=(image_detail_page_urls_queue, catalog_page_urls))
     detail_page_thread = threading.Thread(target=detail_page_worker, args=(image_detail_page_urls_queue, images_dir))
 
     catalog_page_thread.start()
@@ -38,7 +39,7 @@ def main(images_dir: str, start_url: str):
 def get_argument_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
     parser.add_argument("--images_dir", "-d", type=str, default="images/")
-    parser.add_argument("start_url", type=str)
+    parser.add_argument("--catalog_page_urls", nargs="*", default=[])
 
     return parser
 
