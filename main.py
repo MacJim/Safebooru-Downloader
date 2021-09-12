@@ -9,7 +9,7 @@ from detail_page_worker import detail_page_worker, PAGE_RETRIEVAL_COMPLETE_PLACE
 
 
 # MARK: - Main
-def main(images_dir: str, catalog_page_urls: typing.List[str]):
+def main(images_dir: str, catalog_page_urls: typing.List[str], detail_page_urls: typing.List[str]):
     # Verify parameters
     if os.path.exists(images_dir):
         if os.path.isdir(images_dir):
@@ -20,9 +20,16 @@ def main(images_dir: str, catalog_page_urls: typing.List[str]):
         os.makedirs(images_dir)
         print(f"Created images dir `{images_dir}`.")
 
-    # Create threads.
-    image_detail_page_urls_queue = Queue()
+    if (not catalog_page_urls) and (not detail_page_urls):
+        print("No URLs provided.")
+        exit(1)
 
+    # TODO: Add individual images to queue.
+    image_detail_page_urls_queue = Queue()
+    # for url in detail_page_urls:
+    #     image_detail_page_urls_queue.put(url)
+
+    # Create threads.
     catalog_page_thread = threading.Thread(target=catalog_page_worker, args=(image_detail_page_urls_queue, catalog_page_urls))
     detail_page_thread = threading.Thread(target=detail_page_worker, args=(image_detail_page_urls_queue, images_dir))
 
@@ -40,6 +47,7 @@ def get_argument_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
     parser.add_argument("--images_dir", "-d", type=str, default="images/")
     parser.add_argument("--catalog_page_urls", nargs="*", default=[])
+    parser.add_argument("--detail_page_urls", nargs="*", default=[])
 
     return parser
 
@@ -51,4 +59,4 @@ if __name__ == "__main__":
     parser = get_argument_parser()
     args = parser.parse_args()
 
-    main(args.images_dir, args.catalog_page_urls)
+    main(args.images_dir, args.catalog_page_urls, args.detail_page_urls)
