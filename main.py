@@ -24,10 +24,10 @@ def main(images_dir: str, catalog_page_urls: typing.List[str], detail_page_urls:
         print("No URLs provided.")
         exit(1)
 
-    # TODO: Add individual images to queue.
+    # Add individual images to queue.
     image_detail_page_urls_queue = Queue()
-    # for url in detail_page_urls:
-    #     image_detail_page_urls_queue.put(url)
+    for url in detail_page_urls:
+        image_detail_page_urls_queue.put((url, None))    # Manually entered URLs don't have referers.
 
     # Create threads.
     catalog_page_thread = threading.Thread(target=catalog_page_worker, args=(image_detail_page_urls_queue, catalog_page_urls))
