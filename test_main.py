@@ -1,10 +1,9 @@
-import string
 import unittest
 import argparse
-import random
 import itertools
 
 import main
+from random_test_case_helper import get_random_catalog_page_url, get_random_detail_page_url
 
 
 class ArgumentParserTestCase (unittest.TestCase):
@@ -34,21 +33,6 @@ class ArgumentParserTestCase (unittest.TestCase):
 
     # region URLs
     def test_catalog_page_urls(self):
-        def get_random_catalog_page_url() -> str:
-            url_prefix = "https://safebooru.org/index.php?page=post&s=list&tags="
-            url_suffix_len_range = (1, 100)
-
-            random_tag_name = "".join(random.choices(string.ascii_lowercase + "+" + "-", k=random.randint(url_suffix_len_range[0], url_suffix_len_range[1])))
-
-            return url_prefix + random_tag_name
-
-        def get_random_detail_page_url() -> str:
-            url_prefix = "https://safebooru.org/index.php?page=post&s=view&id="
-
-            random_image_id = random.randint(1, 9999999)
-
-            return f"{url_prefix}{random_image_id}"
-
         test_dir_name = "test_dir"
 
         parser = main.get_argument_parser()
