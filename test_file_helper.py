@@ -6,7 +6,7 @@ import os
 import random
 
 import file_helper
-from random_test_case_helper import get_random_catalog_page_url, get_random_detail_page_url
+from random_test_case_helper import get_random_catalog_page_url, get_random_detail_page_url, get_random_filename
 
 
 class ImageExistsTestCase (unittest.TestCase):
@@ -60,16 +60,6 @@ class ImageExistsTestCase (unittest.TestCase):
 class GetURLFromFileTestCase (unittest.TestCase):
     # region Helpers
     @staticmethod
-    def get_random_filename() -> str:
-        filename_length = random.randint(3, 20)    # Inclusive
-        filename = "".join(random.choices(string.ascii_uppercase + string.ascii_lowercase + string.digits, k=filename_length))
-
-        extension_length = 3
-        extension = "".join(random.choices(string.ascii_uppercase + string.ascii_lowercase + string.digits, k=extension_length))
-
-        return f"{filename}.{extension}"
-
-    @staticmethod
     def get_random_comment() -> str:
         """
         Gets a random comment string starting with a random comment prefix from `file_helper.COMMENT_PREFIXES`.
@@ -86,7 +76,7 @@ class GetURLFromFileTestCase (unittest.TestCase):
 
     def test_non_existent_file(self):
         with tempfile.TemporaryDirectory() as root_dir_name:    # Use a temporary dir to prevent filename collisions.
-            filename = GetURLFromFileTestCase.get_random_filename()
+            filename = get_random_filename()
             filename = os.path.join(root_dir_name, filename)
 
             with self.assertRaises(FileNotFoundError):
@@ -95,7 +85,7 @@ class GetURLFromFileTestCase (unittest.TestCase):
     def test_empty_file(self):
         with tempfile.TemporaryDirectory() as root_dir_name:
             # Create an empty file.
-            filename = GetURLFromFileTestCase.get_random_filename()
+            filename = get_random_filename()
             filename = os.path.join(root_dir_name, filename)
             with open(filename, "w"):
                 pass
@@ -114,7 +104,7 @@ class GetURLFromFileTestCase (unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as root_dir_name:
             # Create a comment-only file.
-            filename = GetURLFromFileTestCase.get_random_filename()
+            filename = get_random_filename()
             filename = os.path.join(root_dir_name, filename)
             with open(filename, "w") as f:
                 f.write(file_content)
@@ -142,7 +132,7 @@ class GetURLFromFileTestCase (unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as root_dir_name:
             # Create an URL-only file.
-            filename = GetURLFromFileTestCase.get_random_filename()
+            filename = get_random_filename()
             filename = os.path.join(root_dir_name, filename)
             with open(filename, "w") as f:
                 f.write(file_content)
@@ -190,7 +180,7 @@ class GetURLFromFileTestCase (unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as root_dir_name:
             # Create the file.
-            filename = GetURLFromFileTestCase.get_random_filename()
+            filename = get_random_filename()
             filename = os.path.join(root_dir_name, filename)
             with open(filename, "w") as f:
                 f.write(file_content)
