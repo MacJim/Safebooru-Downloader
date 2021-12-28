@@ -4,12 +4,13 @@ import threading
 import typing
 from queue import Queue    # `Queue` has all the locking semantics for a multi-threaded environment.
 
+from file_helper import get_urls_from_file
 from catalog_page_worker import catalog_page_worker
 from detail_page_worker import detail_page_worker, PAGE_RETRIEVAL_COMPLETE_PLACEHOLDER_URL
 
 
-# MARK: - Main
-def main(images_dir: str, catalog_page_urls: typing.List[str], detail_page_urls: typing.List[str]):
+# region Main Function
+def main(images_dir: str, catalog_page_urls: typing.List[str], detail_page_urls: typing.List[str], catalog_page_urls_filename: typing.Optional[str], detail_page_urls_filename: typing.Optional[str]):
     # Verify parameters
     if os.path.exists(images_dir):
         if os.path.isdir(images_dir):
@@ -20,11 +21,17 @@ def main(images_dir: str, catalog_page_urls: typing.List[str], detail_page_urls:
         os.makedirs(images_dir)
         print(f"Created images dir `{images_dir}`.")
 
+    # Read URLs from file.
+    if catalog_page_urls_filename:
+        catalog_page_urls += get_urls_from_file(catalog_page_urls_filename)
+    if detail_page_urls_filename:
+        detail_page_urls += get_urls_from_file(detail_page_urls_filename)
+
     if (not catalog_page_urls) and (not detail_page_urls):
         print("No URLs provided.")
         exit(1)
 
-    # Add individual images to queue.
+    # Add individual detail page URLs to queue.
     image_detail_page_urls_queue = Queue()
     for url in detail_page_urls:
         image_detail_page_urls_queue.put((url, None))    # Manually entered URLs don't have referers.
@@ -37,26 +44,31 @@ def main(images_dir: str, catalog_page_urls: typing.List[str], detail_page_urls:
     detail_page_thread.start()
 
     catalog_page_thread.join()
-    image_detail_page_urls_queue.put((PAGE_RETRIEVAL_COMPLETE_PLACEHOLDER_URL, None))
+    image_detail_page_urls_queue.put((PAGE_RETRIEVAL_COMPLETE_PLACEHOLDER_URL, None))    # Mark catalog retrieval completion.
 
     detail_page_thread.join()
 
+# endregion
 
-# MARK: - Argument parser
+
+# region Argument parser
 def get_argument_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
     parser.add_argument("--images_dir", "-d", type=str, default="images/")
     parser.add_argument("--catalog_page_urls", nargs="*", default=[])
     parser.add_argument("--detail_page_urls", nargs="*", default=[])
+    parser.add_argument("--catalog_page_urls_filename", type=str, default=None)
+    parser.add_argument("--detail_page_urls_filename", type=str, default=None)
 
     return parser
 
+# endregion
 
-# MARK: -
+
 if __name__ == "__main__":
     print(f"Working directory: {os.getcwd()}")
 
     parser = get_argument_parser()
     args = parser.parse_args()
 
-    main(args.images_dir, args.catalog_page_urls, args.detail_page_urls)
+    main(args.images_dir, args.catalog_page_urls, args.detail_page_urls, args.catalog_page_urls_filename, args.detail_page_urls_filename)
