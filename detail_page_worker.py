@@ -34,7 +34,7 @@ Example: `https://safebooru.org/index.php?page=post&s=view&id=1348630`
 """
 
 
-def detail_page_worker(image_detail_page_urls_queue: Queue, images_dir: str):
+def detail_page_worker(image_detail_page_urls_queue: Queue, images_dir: str, ignored_image_ids: typing.Set[str]):
     while True:
         page_url, referer = image_detail_page_urls_queue.get(block=True)    # Must block here until the catalog page thread adds more URLs.
         if page_url == PAGE_RETRIEVAL_COMPLETE_PLACEHOLDER_URL:
@@ -47,6 +47,11 @@ def detail_page_worker(image_detail_page_urls_queue: Queue, images_dir: str):
         get_parameters = urllib.parse.parse_qs(parsed_page_url.query)
         image_id = get_parameters[IMAGE_ID_KEY]    # This is actually a list.
         image_id = image_id[0]
+
+        if image_id in ignored_image_ids:
+            # Image explicitly ignored.
+            print(f"Image {image_id} ignored.")
+            continue
 
         if file_helper.image_exists(image_id, images_dir):
             # Image already downloaded.

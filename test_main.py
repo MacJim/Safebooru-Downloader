@@ -59,24 +59,30 @@ class ArgumentParserTestCase (unittest.TestCase):
     # region Filenames
     def test_filenames(self):
         test_dir_name = get_random_filename()
-        filename_test_cases = (
-            (None, None),
-            (None, get_random_filename()),
-            (get_random_filename(), None),
-            (get_random_filename(), get_random_filename()),
-        )
+        filename_test_cases = []
+        for i in range(10):
+            filename_test_cases.append((None, None, [get_random_filename() for _ in range(i)]))
+            filename_test_cases.append((get_random_filename(), None, [get_random_filename() for _ in range(i)]))
+            filename_test_cases.append((None, get_random_filename(), [get_random_filename() for _ in range(i)]))
+            filename_test_cases.append((get_random_filename(), get_random_filename(), [get_random_filename() for _ in range(i)]))
 
         parser = main.get_argument_parser()
 
-        for catalog_page_urls_filename, detail_page_urls_filename in filename_test_cases:
+        for catalog_page_urls_filename, detail_page_urls_filename, ignored_image_ids_filenames in filename_test_cases:
+            # Construct and parse arguments.
             args_list = ["--images_dir", test_dir_name]
             if catalog_page_urls_filename:
                 args_list += ["--catalog_page_urls_filename", catalog_page_urls_filename]
             if detail_page_urls_filename:
                 args_list += ["--detail_page_urls_filename", detail_page_urls_filename]
+            if ignored_image_ids_filenames:
+                args_list.append("--ignored_image_ids_filenames")
+                for filename in ignored_image_ids_filenames:
+                    args_list.append(filename)
 
             args = parser.parse_args(args_list)
 
+            # Assertions.
             self.assertIsInstance(args.images_dir, str)
             self.assertEqual(args.images_dir, test_dir_name)
 
@@ -87,6 +93,9 @@ class ArgumentParserTestCase (unittest.TestCase):
             if detail_page_urls_filename:
                 self.assertIsInstance(args.detail_page_urls_filename, str)
             self.assertEqual(args.detail_page_urls_filename, detail_page_urls_filename)
+
+            self.assertIsInstance(args.ignored_image_ids_filenames, list)
+            self.assertEqual(args.ignored_image_ids_filenames, ignored_image_ids_filenames)
 
     # endregion
 

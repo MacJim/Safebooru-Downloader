@@ -57,7 +57,7 @@ class ImageExistsTestCase (unittest.TestCase):
                 self.assertFalse(file_helper.image_exists(test_id, dir_name))
 
 
-class GetURLFromFileTestCase (unittest.TestCase):
+class LoadFileTestCase (unittest.TestCase):
     # region Helpers
     @staticmethod
     def get_random_comment() -> str:
@@ -72,8 +72,39 @@ class GetURLFromFileTestCase (unittest.TestCase):
 
         return return_value
 
+    @staticmethod
+    def get_random_comments() -> typing.List[str]:
+        # Generate comments and blank lines.
+        comments_and_empty_lines = []
+        for _ in range(random.randint(5, 100)):
+            comments_and_empty_lines.append(LoadFileTestCase.get_random_comment())
+        for _ in range(random.randint(5, 100)):
+            comments_and_empty_lines.append("")
+
+        return comments_and_empty_lines
+
+    @staticmethod
+    def get_random_urls() -> typing.List[str]:
+        urls = []
+        for _ in range(random.randint(5, 100)):
+            urls.append(get_random_catalog_page_url())
+        for _ in range(random.randint(5, 100)):
+            urls.append(get_random_detail_page_url())
+        random.shuffle(urls)
+
+        return urls
+
+    @staticmethod
+    def get_random_ids() -> typing.List[str]:
+        ids = []
+        for _ in range(random.randint(10, 200)):
+            ids.append(str(random.randint(1, 9999999)))
+
+        return ids
+
     # endregion
 
+    # region Empty file
     def test_non_existent_file(self):
         with tempfile.TemporaryDirectory() as root_dir_name:    # Use a temporary dir to prevent filename collisions.
             filename = get_random_filename()
@@ -81,6 +112,9 @@ class GetURLFromFileTestCase (unittest.TestCase):
 
             with self.assertRaises(FileNotFoundError):
                 file_helper.get_urls_from_file(filename)
+
+            with self.assertRaises(FileNotFoundError):
+                file_helper.get_ids_from_file(filename)
 
     def test_empty_file(self):
         with tempfile.TemporaryDirectory() as root_dir_name:
@@ -90,16 +124,22 @@ class GetURLFromFileTestCase (unittest.TestCase):
             with open(filename, "w"):
                 pass
 
-            # Should return no content.
+            # get_urls_from_file
             urls_from_file = file_helper.get_urls_from_file(filename)
             self.assertIsInstance(urls_from_file, list)
             self.assertEqual(len(urls_from_file), 0)
             self.assertFalse(urls_from_file)
 
+            # get_ids_from_file
+            ids_from_file = file_helper.get_ids_from_file(filename)
+            self.assertIsInstance(ids_from_file, set)
+            self.assertEqual(len(ids_from_file), 0)
+            self.assertFalse(ids_from_file)
+
     def test_comment_only_file(self):
         file_content = ""
         for _ in range(random.randint(5, 100)):
-            file_content += GetURLFromFileTestCase.get_random_comment()
+            file_content += LoadFileTestCase.get_random_comment()
             file_content += "\n"
 
         with tempfile.TemporaryDirectory() as root_dir_name:
@@ -109,29 +149,30 @@ class GetURLFromFileTestCase (unittest.TestCase):
             with open(filename, "w") as f:
                 f.write(file_content)
 
-            # Should return no content.
+            # get_urls_from_file
             urls_from_file = file_helper.get_urls_from_file(filename)
             self.assertIsInstance(urls_from_file, list)
             self.assertEqual(len(urls_from_file), 0)
             self.assertFalse(urls_from_file)
 
+            # get_ids_from_file
+            ids_from_file = file_helper.get_ids_from_file(filename)
+            self.assertIsInstance(ids_from_file, set)
+            self.assertEqual(len(ids_from_file), 0)
+            self.assertFalse(ids_from_file)
+
+    # endregion
+
+    # region URLs file
     def test_url_only_file(self):
         # Generate URLs.
-        urls = []
-        for _ in range(random.randint(5, 100)):
-            urls.append(get_random_catalog_page_url())
-        for _ in range(random.randint(5, 100)):
-            urls.append(get_random_detail_page_url())
-        random.shuffle(urls)
+        urls = self.get_random_urls()
 
         # Generate file content from URLs.
-        file_content = ""
-        for url in urls:
-            file_content += url
-            file_content += "\n"
+        file_content = "\n".join(urls)
 
         with tempfile.TemporaryDirectory() as root_dir_name:
-            # Create an URL-only file.
+            # Create a URL-only file.
             filename = get_random_filename()
             filename = os.path.join(root_dir_name, filename)
             with open(filename, "w") as f:
@@ -140,26 +181,11 @@ class GetURLFromFileTestCase (unittest.TestCase):
             # Should return all URLs.
             urls_from_file = file_helper.get_urls_from_file(filename)
             self.assertIsInstance(urls_from_file, list)
-            self.assertEqual(urls_from_file, urls_from_file)
+            self.assertEqual(urls_from_file, urls)
 
     def test_url_comment_blank_mixture(self):
-        # Generate URLs.
-        urls = []
-
-        for _ in range(random.randint(5, 100)):
-            urls.append(get_random_catalog_page_url())
-        for _ in range(random.randint(5, 100)):
-            urls.append(get_random_detail_page_url())
-
-        random.shuffle(urls)    # Need to shuffle URLs right away because we need to retain and check their order.
-
-        # Generate comments and blank lines.
-        comments_and_empty_lines = []
-
-        for _ in range(random.randint(5, 100)):
-            comments_and_empty_lines.append(GetURLFromFileTestCase.get_random_comment())
-        for _ in range(random.randint(5, 100)):
-            comments_and_empty_lines.append("")
+        urls = self.get_random_urls()
+        comments_and_empty_lines = self.get_random_comments()
 
         # Mix URLs and comments.
         urls_and_comments = comments_and_empty_lines + [None for _ in urls]
@@ -173,10 +199,7 @@ class GetURLFromFileTestCase (unittest.TestCase):
                 url_i += 1
 
         # Generate file content.
-        file_content = ""
-        for line in urls_and_comments:
-            file_content += line
-            file_content += "\n"
+        file_content = "\n".join(urls_and_comments)
 
         with tempfile.TemporaryDirectory() as root_dir_name:
             # Create the file.
@@ -189,6 +212,52 @@ class GetURLFromFileTestCase (unittest.TestCase):
             urls_from_file = file_helper.get_urls_from_file(filename)
             self.assertIsInstance(urls_from_file, list)
             self.assertEqual(urls_from_file, urls)
+
+    # endregion
+
+    # region IDs file
+    def test_id_only_file(self):
+        ids = self.get_random_ids()
+
+        # Generate file content from IDs.
+        file_content = "\n".join(ids)
+
+        with tempfile.TemporaryDirectory() as root_dir_name:
+            # Create the file.
+            filename = get_random_filename()
+            filename = os.path.join(root_dir_name, filename)
+            with open(filename, "w") as f:
+                f.write(file_content)
+
+            # Should return all IDs.
+            ids_from_file = file_helper.get_ids_from_file(filename)
+            self.assertIsInstance(ids_from_file, set)
+            self.assertEqual(ids_from_file, set(ids))
+
+    def test_id_comment_blank_mixture(self):
+        ids = self.get_random_ids()
+        comments_and_empty_lines = self.get_random_comments()
+
+        # Mix IDs and comments.
+        ids_and_comments = ids + comments_and_empty_lines
+        random.shuffle(ids_and_comments)  # Order doesn't matter: Will convert to `set`
+
+        # Generate file content.
+        file_content = "\n".join(ids_and_comments)
+
+        with tempfile.TemporaryDirectory() as root_dir_name:
+            # Create the file.
+            filename = get_random_filename()
+            filename = os.path.join(root_dir_name, filename)
+            with open(filename, "w") as f:
+                f.write(file_content)
+
+            # Should return all IDs.
+            ids_from_file = file_helper.get_ids_from_file(filename)
+            self.assertIsInstance(ids_from_file, set)
+            self.assertEqual(ids_from_file, set(ids))
+
+    # endregion
 
 
 if __name__ == "__main__":
